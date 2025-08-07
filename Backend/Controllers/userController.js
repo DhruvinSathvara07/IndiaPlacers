@@ -1,7 +1,6 @@
 const userSchema = require("../Models/userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { use } = require("react");
 
 // ***** User Register Code
 exports.register = async (req, res) => {
@@ -17,7 +16,7 @@ exports.register = async (req, res) => {
         }
 
         // This Code checking user email is already exist or not exist
-        const users = await userSchema.finOne({ email });
+        const users = await userSchema.findOne({ email });
 
         if (users) {
             return res.status(400).json({
@@ -77,7 +76,7 @@ exports.login = async (req, res) => {
 
         // check role is correct or not 
         if (role != user.role) {
-            return res.status({
+            return res.status(400).json({
                 message: "Account doesn't exist with current role",
                 success: false
             })
@@ -88,7 +87,7 @@ exports.login = async (req, res) => {
             userId: user._id
         }
 
-        user = {
+        const loggedUser = {
             _id: user._id,
             fullname: user.fullname,
             email: user.email,
@@ -102,8 +101,8 @@ exports.login = async (req, res) => {
 
         // store a token in a cookies
         return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: "strict" }).json({
-            message: `Welocme back ${user.fullname}`,
-            user,
+            message: `Welocme back ${loggedUser.fullname}`,
+            loggedUser,
             success: true
         });
 
@@ -133,16 +132,19 @@ exports.updateProfile = async (req, res) => {
         const { fullname, email, phoneNumber, bio, skills } = req.body;
         const file = req.file;
 
-        // Validate required fields
-        if (!fullname || !email || !phoneNumber || !bio || !skills) {
-            return res.status(400).json({
-                message: "Something is missing !",
-                success: false
-            });
-        }
+        // // Validate required fields
+        // if (!fullname || !email || !phoneNumber || !bio || !skills) {
+        //     return res.status(400).json({
+        //         message: "Something is missing !",
+        //         success: false
+        //     });
+        // }
 
         // Convert skills string into an array
-        const skillsArray = skills.split(",");
+        let skillsArray;
+        if (skills) {
+            skillsArray = skills.split(",");
+        }
 
         // Get user ID from the authenticated request 
         const userId = req.id;
@@ -157,11 +159,11 @@ exports.updateProfile = async (req, res) => {
         }
 
         // Update user profile fields
-        updatedUser.fullname = fullname,
-            updatedUser.email = email,
-            updatedUser.phoneNumber = phoneNumber,
-            updatedUser.profile.bio = bio,
-            updatedUser.profile.skills = skillsArray
+        if (fullname) updatedUser.fullname = fullname
+        if (email) updatedUser.email = email
+        if (phoneNumber) updatedUser.phoneNumber = phoneNumber
+        if (bio) updatedUser.profile.bio = bio
+        if (skills) updatedUser.profile.skills = skillsArray
 
         await updatedUser.save();
 
@@ -175,11 +177,12 @@ exports.updateProfile = async (req, res) => {
             profile: updatedUser.profile
         };
 
-        return req.status(200).json({
+        return res.status(200).json({
             message: "Profile Updated Successfully !",
             userResponse,
             success: true
         });
+
     } catch (error) {
         console.log(error);
         return res.status(500).json({
