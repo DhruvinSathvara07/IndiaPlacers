@@ -1,4 +1,4 @@
-const { companySchema } = require("../Models/companyModel");
+const companySchema = require("../Models/companyModel");
 
 exports.registerCompany = async (req, res) => {
     try {
@@ -44,8 +44,6 @@ exports.getCompany = async (req, res) => {
                 success: false
             });
         }
-
-
     } catch (error) {
         console.log(error);
     }

@@ -1,35 +1,34 @@
 const express = require("express");
 const app = express();
-const db = require("./db/db")
+const db = require("./db/db");
 db();
-const cookieParser = require("cookie-parser")
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const userRoutes = require("./Routes/userRoutes")
+const userRoutes = require("./Routes/userRoutes");
+const companyRoutes = require("./Routes/companyRoutes");
 
 // Middlewares
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }))
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
 const corsOptions = {
-    origin: "http//localhost:5173",
-    credentials: true
-}
+    origin: "http://localhost:5173", // Fixed missing ":" after http
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"], // Allow Bearer token
+};
 app.use(cors(corsOptions));
 
-// Testing routes
+// Testing route
 app.get("/", (req, res) => {
     res.send("Hello !");
 });
 
-// api's
-
-// users apis
-// http://localhost:8001/api/user/register
-// http://localhost:8001/api/user/login
-// http://localhost:8001/api/user/profile/update
-// http://localhost:8001/api/logout
+// User APIs
 app.use("/api/user", userRoutes);
 
+// Company APIs
+app.use("/api/company", companyRoutes);
 
 // App listen
 const port = 8001;

@@ -4,27 +4,38 @@ dotenv.config();
 
 const isAuthenciated = async (req, res, next) => {
     try {
-        const token = req.cookies.token;
-        if (!token) {
-            return res.status(401).json({
-                message: "User not Authenciated !",
-                success: false
-            })
+        let token = req.cookies.token;
+
+        if (!token && typeof req.headers.authorization === "string") {
+            if (req.headers.authorization.startsWith("Bearer ")) {
+                token = req.headers.authorization.split(" ")[1];
+            }
         }
 
-        const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+        if (!token) {
+            return res.status(401).json({
+                message: "User not Authenticated!",
+                success: false
+            });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         if (!decoded) {
             return res.status(401).json({
-                message: "Invalid Token !",
+                message: "Invalid Token!",
                 success: false
-            })
-        };
+            });
+        }
 
         req.id = decoded.userId;
         next();
     } catch (error) {
-        console.log(error);
+        console.error("Auth Error:", error.message);
+        return res.status(401).json({
+            message: "Authentication failed",
+            success: false
+        });
     }
-}
+};
 
 module.exports = isAuthenciated;
