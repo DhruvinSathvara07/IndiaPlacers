@@ -13,9 +13,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 const corsOptions = {
-    origin: "http://localhost:5173", // Fixed missing ":" after http
+    origin: "http://localhost:5173",
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"], // Allow Bearer token
+    allowedHeaders: ["Content-Type", "Authorization"],
 };
 app.use(cors(corsOptions));
 
