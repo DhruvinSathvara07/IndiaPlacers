@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const userRoutes = require("./Routes/userRoutes");
 const companyRoutes = require("./Routes/companyRoutes");
+const jobRoutes = require("./Routes/jobRoutes");
 
 // Middlewares
 app.use(express.json());
@@ -29,6 +30,9 @@ app.use("/api/user", userRoutes);
 
 // Company APIs
 app.use("/api/company", companyRoutes);
+
+// Job APIs
+app.use("/api/job", jobRoutes);
 
 // App listen
 const port = 8001;
