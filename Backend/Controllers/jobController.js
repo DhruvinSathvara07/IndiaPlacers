@@ -69,7 +69,7 @@ exports.getAllJobs = async (req, res) => {
 
         const jobs = await jobSchema.find(query).populate({
             path: "company"
-        }).sort({ createdAt: -1 });
+        }).sort({ createdAt: -1 })
 
         if (!jobs) {
             return res.status(404).json({
